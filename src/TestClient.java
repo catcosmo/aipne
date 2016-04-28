@@ -30,21 +30,43 @@ public class TestClient {
 	static long first;
 	static long second;
 	
+	//function to find playing field coordinates in longs
+	static public int abbildung(int x, int y){
+		int z = y*15 - y*(y-1) +x;
+		return z;
+	};
+	
+	//safe move to spielfeld-abbildung
+	static public void applyMove(Move move, long first, long second){
+		int oldX = move.fromX;
+		int oldY = move.fromY;
+		int newX = move.toX;
+		int newY = move.toY;
+		first |= abbildung(newX, newY) << abbildung(oldX, oldY);
+		second |= abbildung(newX, newY) << abbildung(oldX, oldY);
+	}
+	
 	
 
 	public static void run() {
 		Move move;
 		while(true){
 			move = network.receiveMove();
+			
 			if(move != null){
-				//safe in array
+				//safe in longs
+				applyMove(move, first, second);
+				
 			}else{
-				network.sendMove(ponder(field));
+				network.sendMove(ponder(first, second));
+				applyMove(ponder(first, second), first, second);
 			};
 		}
 	}
 	
-	static public Move ponder(byte[][] field) {
+	static public Move ponder(long first, long second) {
+		network.getTimeLimitInSeconds();
+		//network.getMyPlayerNumber(); braucht man?
 		Move myMove = null;
 		//clever strategy
 		return myMove;
