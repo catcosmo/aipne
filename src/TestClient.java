@@ -87,11 +87,16 @@ public class TestClient {
 		}
 	}
 	
+	//check constraints moving patterns
+	public void checkConstraints(byte[] field){
+ 
+    }
+	
 	static public Move ponder(byte[] field) {
 		network.getTimeLimitInSeconds();
 		//network.getMyPlayerNumber(); braucht man?
 		Move myMove = null;
-		//check constraints moving patterns
+		checkConstraints(field);
 		//clever strategy
 		return myMove;
 	}
