@@ -123,23 +123,24 @@ public class AlphaBetaTrial {
 		
     }
 	
-	public static Move getBestMove(byte[] field, int playerNumber){
+	public static Move getBestMove(byte[] field, int playerNumber, int score){
 		Move bestMove = null;
 		Move trialMove = null;
 		byte[] trialField = field;
-		int score = 0;
 		for(int z=0; z<64; z++){
-			for(int x=0; x<15; x++){
-				for(int y=0; y<8; y++){
+			for(int y=0; y<8; y++){
+				for(int x=0; x <= 14-2*y; x++){				
 					if(checkConstraints(field,z,playerNumber, x, y)){
 						trialMove = new Move(zToX(z), zToY(z), x, y);
-						//hier rekursionsaufruf?
 						applyMove(trialMove, trialField);
-						//get score
+						//TODO hier rekursionsaufruf? rekursionsstop = maxDepth berechnet durch network.getTimeLimitInSeconds()
+
+						//get score, gute heuristik? i doubt it
 						if(playerNumber == network.getMyPlayerNumber()){
 							score += getScore(trialField, trialMove, score);
 						}else score -= getScore(trialField, trialMove, score);
 						//TODO vgl. score nach rekursion into max depth mit highScore
+						//wenn highScore geknackt, speicher bestMove
 					}
 				}
 			}
@@ -174,7 +175,7 @@ public class AlphaBetaTrial {
 		//double timer = network.getTimeLimitInSeconds(); berchechnen mit maxDepth
 		int myPlayerNumber = network.getMyPlayerNumber();
 		Move myMove = null;
-		myMove = getBestMove(field, myPlayerNumber);
+		myMove = getBestMove(field, myPlayerNumber, 0);
 		
 		//returnValidMoves(field);
 		//build tree, 
