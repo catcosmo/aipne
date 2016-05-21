@@ -123,9 +123,8 @@ public class AlphaBetaTrial {
 		
     }
 	
-	public Move getBestMove(byte[] field, int playerNumber){
+	public static Move getBestMove(byte[] field, int playerNumber){
 		Move bestMove = null;
-
 		Move trialMove = null;
 		byte[] trialField = field;
 		int score = 0;
@@ -134,8 +133,13 @@ public class AlphaBetaTrial {
 				for(int y=0; y<8; y++){
 					if(checkConstraints(field,z,playerNumber, x, y)){
 						trialMove = new Move(zToX(z), zToY(z), x, y);
+						//hier rekursionsaufruf?
 						applyMove(trialMove, trialField);
-						score +=1;
+						//get score
+						if(playerNumber == network.getMyPlayerNumber()){
+							score += getScore(trialField, trialMove, score);
+						}else score -= getScore(trialField, trialMove, score);
+						//TODO vgl. score nach rekursion into max depth mit highScore
 					}
 				}
 			}
@@ -144,12 +148,25 @@ public class AlphaBetaTrial {
 		return bestMove;
 	}
 	
-	public int getScore(byte[] field, Move move, int score){
+	//vor der anwendung von getScore MUSS checkConstraints aufgerufen werden
+	public static int getScore(byte[] field, Move move, int score){
+		//endpunkte je playernummer score 10
+		int x = move.toX;
+		int y = move.toY;
+		if(x==14 && y == 0 && field[abbildung(x, y)]==1
+			|| x==0 && y == 7 && field[abbildung(x, y)]==0
+			|| x==0 && y == 0 && field[abbildung(x, y)]==2){
+			score += 10;
+		}
 		//score normaler move
-		if(field[abbildung(move.toX, move.toY)] == 3){
+		else if(field[abbildung(move.toX, move.toY)] == 3){
 			score += 1;
 		}
-		//endpunkte je playernummer score 10
+		//score bei schlagen
+		else if(field[abbildung(move.toX, move.toY)] != 3){
+			score += 2;
+		}
+		
 		return score;
 	}
 	
@@ -157,21 +174,7 @@ public class AlphaBetaTrial {
 		//double timer = network.getTimeLimitInSeconds(); berchechnen mit maxDepth
 		int myPlayerNumber = network.getMyPlayerNumber();
 		Move myMove = null;
-		Move trialMove = null;
-		byte[] trialField = field;
-		int myScore = 0;
-		for(int z=0; z<64; z++){
-			for(int x=0; x<15; x++){
-				for(int y=0; y<8; y++){
-					if(checkConstraints(field,z,myPlayerNumber, x, y)){
-						trialMove = new Move(zToX(z), zToY(z), x, y);
-						applyMove(trialMove, trialField);
-						myScore +=1;
-					}
-				}
-			}
-			
-		}
+		myMove = getBestMove(field, myPlayerNumber);
 		
 		//returnValidMoves(field);
 		//build tree, 
@@ -186,3 +189,17 @@ public class AlphaBetaTrial {
 		run();
 	}
 }
+
+/*
+*für einen gegebenen move
+-constraints checken
+-die anderen spieler durchlaufen bis maxDepth, berechnet durch network.getTimeLimitInSeconds()
+-score ermitteln
+-score + move speichern
+-dann für jeden validen move wiederholen
+das klingt logisch
+-wenn ein höherer score gefunden wird, diesen move speichern
+dafür müsste man evt ein objekt bauen was einen move und einen score zurückgeben kann
+class MoveWithScore { Move move; int score; }
+*
+*/
