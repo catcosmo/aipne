@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 import lenz.htw.aipne.Move;
 import lenz.htw.aipne.net.NetworkClient;
 
-public class TestClient {
+public class AlphaBetaTrial {
 	//get image
 	private static BufferedImage getImage(){
 		BufferedImage pic = null;
@@ -34,6 +34,7 @@ public class TestClient {
 		return z;
 	};
 	
+	//TODO fill in functions
 	static public int zToX(int z){
 		int y = 0;
 		return y;
@@ -98,42 +99,79 @@ public class TestClient {
 		}
 	}
 	
-	public boolean validMoves(byte[] field, int myPlayerNumber){
-		for(int x=0; x<15; x++){
-			for(int y=0; y<8; y++){
-				int z = abbildung(x,y);
-				if(field[z]==myPlayerNumber){
-					if(myPlayerNumber==0){
-						return true;
-					}else if(myPlayerNumber==1){
-						if(x%2==0){
-							if()
-							return true;
+	public static boolean checkConstraints(byte[] field, int z, int playerNumber, int x, int y){
+		//TODO fill constraints in if, dont forget sides of playing field
+		int xCurrent = zToX(z);
+		int yCurrent = zToY(z);
+		
+				if(field[z]==playerNumber){
+					if(playerNumber==0){
+					}else if(playerNumber==1){
+						if(xCurrent%2==0){
+							if(x == xCurrent+1 && (y==yCurrent || y==yCurrent+1)){
+								
+							}
 						}
-					}else if(myPlayerNumber==2){
-						return true;
+					}else if(playerNumber==2){
 					}
 				}
-				
-			}			
-		}
-		return false;
+		
 		//check no own player on goal field
 		//check yNew >= yOld
 		//check x%2==0 -> other constraints
+		return false;
 		
     }
 	
+	public Move getBestMove(byte[] field, int playerNumber){
+		Move bestMove = null;
+
+		Move trialMove = null;
+		byte[] trialField = field;
+		int score = 0;
+		for(int z=0; z<64; z++){
+			for(int x=0; x<15; x++){
+				for(int y=0; y<8; y++){
+					if(checkConstraints(field,z,playerNumber, x, y)){
+						trialMove = new Move(zToX(z), zToY(z), x, y);
+						applyMove(trialMove, trialField);
+						score +=1;
+					}
+				}
+			}
+			
+		}
+		return bestMove;
+	}
 	
-	//feld drehen
-	public void turnField(byte[] field){
-		
+	public int getScore(byte[] field, Move move, int score){
+		//score normaler move
+		if(field[abbildung(move.toX, move.toY)] == 3){
+			score += 1;
+		}
+		//endpunkte je playernummer score 10
+		return score;
 	}
 	
 	static public Move ponder(byte[] field) {
-		//double timer = network.getTimeLimitInSeconds();
-		//int myPlayerNumber = network.getMyPlayerNumber();
+		//double timer = network.getTimeLimitInSeconds(); berchechnen mit maxDepth
+		int myPlayerNumber = network.getMyPlayerNumber();
 		Move myMove = null;
+		Move trialMove = null;
+		byte[] trialField = field;
+		int myScore = 0;
+		for(int z=0; z<64; z++){
+			for(int x=0; x<15; x++){
+				for(int y=0; y<8; y++){
+					if(checkConstraints(field,z,myPlayerNumber, x, y)){
+						trialMove = new Move(zToX(z), zToY(z), x, y);
+						applyMove(trialMove, trialField);
+						myScore +=1;
+					}
+				}
+			}
+			
+		}
 		
 		//returnValidMoves(field);
 		//build tree, 
