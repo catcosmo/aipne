@@ -36,14 +36,39 @@ public class AlphaBetaTrial {
 	
 	//TODO fill in functions
 	static public int zToX(int z){
-		int y = 0;
-		return y;
+		int x = z+y2−16y;
+		return x;
 	}
 	
-	static public int zToY(int z){
-		int y = 0;
-		return y;
+	static public int zToY(int z, int x){
+		int y1 = (int) (8-  Math.sqrt(-z+x+64));
+		int y2 = (int) (8+  Math.sqrt(-z+x+64));
+		if(y1>=0 && y1 <8) return y1;
+		else return y2;
 	}
+	
+	//initialize playing field
+		public static void initializePlayingfield(byte[] field){
+			for(int x=0; x<15; x++){
+				for(int y=0; y<8; y++){
+					int z = abbildung(x,y);
+					//for player 0
+					if(x>3 && x<11 && y==0 || x==6 && y==1){
+						field[z]=0;
+					//for player 1
+					} else if((y==2 || y==4)&&x<2||x==0&&y==4||y==3&&x<4){
+						field[z]=1;
+					//for player 2
+					} else if(y==5&&x==4||y==4&&(x==5||x==6)||y==3&&x<10&&x>5||y==2&&(x==10||x==9)){
+						field[z]=2;
+
+					}else if(x <= 15-2*y){
+						field[z]=3;
+					}
+				}			
+			}
+		}
+		
 	
 	//safe move to spielfeld-abbildung
 	static public void applyMove(Move move, byte[] field){
@@ -55,49 +80,6 @@ public class AlphaBetaTrial {
 		field[abbildung(oldX, oldY)] = 3;
 	}
 	
-	//initialize playing field
-	public static void initializePlayingfield(byte[] field){
-		for(int x=0; x<15; x++){
-			for(int y=0; y<8; y++){
-				int z = abbildung(x,y);
-				//for player 0
-				if(x>3 && x<11 && y==0 || x==6 && y==1){
-					field[z]=0;
-				//for player 1
-				} else if((y==2 || y==4)&&x<2||x==0&&y==4||y==3&&x<4){
-					field[z]=1;
-				//for player 2
-				} else if(y==5&&x==4||y==4&&(x==5||x==6)||y==3&&x<10&&x>5||y==2&&(x==10||x==9)){
-					field[z]=2;
-
-				}else if(x <= 15-2*y){
-					field[z]=3;
-				}
-			}			
-		}
-	}
-	
-	
-	
-	
-
-	public static void run() {
-		Move move;
-		initializePlayingfield(field);
-		while(true){
-			move = network.receiveMove();
-			
-			if(move != null){
-				//safe opponents move in field
-				applyMove(move, field);
-				
-			}else{
-				//make move & safe move
-				move = ponder(field);
-				network.sendMove(move);
-			}
-		}
-	}
 	
 	public static boolean checkConstraints(byte[] field, int z, int playerNumber, int x, int y){
 		//TODO fill constraints in if, dont forget sides of playing field
@@ -134,7 +116,7 @@ public class AlphaBetaTrial {
 					if(checkConstraints(field,z,playerNumber, x, y)){
 						trialMove = new Move(zToX(z), zToY(z), x, y);
 						applyMove(trialMove, trialField);
-						//TODO hier rekursionsaufruf? rekursionsstop = maxDepth berechnet durch network.getTimeLimitInSeconds()
+						//TODO hier rekursionsaufruf? rekursionsstop = maxDepth vs. network.getTimeLimitInSeconds()
 						//get score
 						if(playerNumber == network.getMyPlayerNumber()){
 							score += getScore(trialField, trialMove, score);
@@ -180,7 +162,24 @@ public class AlphaBetaTrial {
 		return myMove;
 	}
 	
-
+	public static void run() {
+		Move move;
+		initializePlayingfield(field);
+		while(true){
+			move = network.receiveMove();
+			
+			if(move != null){
+				//safe opponents move in field
+				applyMove(move, field);
+				
+			}else{
+				//make move & safe move
+				move = ponder(field);
+				network.sendMove(move);
+			}
+		}
+	}
+	
 	
 	public static void main(String[] args){
 		run();
@@ -194,7 +193,6 @@ public class AlphaBetaTrial {
 -score ermitteln
 -score + move speichern
 -dann für jeden validen move wiederholen
-das klingt logisch
 -wenn ein höherer score gefunden wird, diesen move speichern
 dafür müsste man evt ein objekt bauen was einen move und einen score zurückgeben kann
 class MoveWithScore { Move move; int score; }
