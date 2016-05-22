@@ -109,7 +109,7 @@ public class AlphaBetaTrial {
 					}else if(playerNumber==1){
 						if(xCurrent%2==0){
 							if(x == xCurrent+1 && (y==yCurrent || y==yCurrent+1)){
-								
+								return true;
 							}
 						}
 					}else if(playerNumber==2){
@@ -123,6 +123,7 @@ public class AlphaBetaTrial {
 		
     }
 	
+	//bestMove als Objekt mit Move und score?
 	public static Move getBestMove(byte[] field, int playerNumber, int score){
 		Move bestMove = null;
 		Move trialMove = null;
@@ -134,13 +135,13 @@ public class AlphaBetaTrial {
 						trialMove = new Move(zToX(z), zToY(z), x, y);
 						applyMove(trialMove, trialField);
 						//TODO hier rekursionsaufruf? rekursionsstop = maxDepth berechnet durch network.getTimeLimitInSeconds()
-
 						//get score
 						if(playerNumber == network.getMyPlayerNumber()){
 							score += getScore(trialField, trialMove, score);
 						}else score -= getScore(trialField, trialMove, score);
 						//TODO vgl. score nach rekursion into max depth mit highScore
 						//wenn highScore geknackt, speicher bestMove
+
 					}
 				}
 			}
@@ -176,11 +177,6 @@ public class AlphaBetaTrial {
 		int myPlayerNumber = network.getMyPlayerNumber();
 		Move myMove = null;
 		myMove = getBestMove(field, myPlayerNumber, 0);
-		
-		//returnValidMoves(field);
-		//build tree, 
-		//cut off crappy ones 
-		//repeat
 		return myMove;
 	}
 	
