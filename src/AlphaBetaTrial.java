@@ -88,7 +88,7 @@ public class AlphaBetaTrial {
 			move = network.receiveMove();
 			
 			if(move != null){
-				//safe opponents move in longs
+				//safe opponents move in field
 				applyMove(move, field);
 				
 			}else{
@@ -135,7 +135,7 @@ public class AlphaBetaTrial {
 						applyMove(trialMove, trialField);
 						//TODO hier rekursionsaufruf? rekursionsstop = maxDepth berechnet durch network.getTimeLimitInSeconds()
 
-						//get score, gute heuristik? i doubt it
+						//get score
 						if(playerNumber == network.getMyPlayerNumber()){
 							score += getScore(trialField, trialMove, score);
 						}else score -= getScore(trialField, trialMove, score);
